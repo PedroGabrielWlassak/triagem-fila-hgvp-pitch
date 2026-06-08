@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Triagem & Fila Inteligente — HGVP</title>
+<meta name="description" content="Plataforma integrada de triagem Manchester, fila inteligente, chamador e analytics preditivo para o PS do Hospital Geral Vila Penteado." />
+<meta name="theme-color" content="#0B5563" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #0B5563;
+    --brand-accent: #1E88A8;
+    --brand-soft: #E6F1F4;
+    --ink: #1B2B33;
+    --muted: #5A6B72;
+    --rule: #CFDDE1;
+    --warm: #C76A2C;
+    --m-red: #C0392B;
+    --m-orange: #E67E22;
+    --m-yellow: #F1C40F;
+    --m-green: #27AE60;
+    --m-blue: #2980B9;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, #f8fafb 0%, #e9eef0 100%);
+    min-height: 100vh;
+  }
+  .hero {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-accent) 100%);
+    color: white; padding: 56px 24px 80px; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ""; position: absolute; top: -40px; right: -40px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: rgba(255,255,255,.06);
+  }
+  .hero::after {
+    content: ""; position: absolute; bottom: -60px; left: -60px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: rgba(255,255,255,.04);
+  }
+  .container { max-width: 980px; margin: 0 auto; position: relative; z-index: 1; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: .18em; font-size: 11px;
+    opacity: .85; font-weight: 600; margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(32px, 5vw, 52px); line-height: 1.05;
+    font-weight: 800; margin: 0 0 14px;
+  }
+  .subtitle {
+    font-size: clamp(15px, 1.8vw, 18px); line-height: 1.55; max-width: 720px;
+    opacity: .95; margin-bottom: 28px;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+  }
+  .meta span {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18);
+    padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 500;
+  }
+
+  main { max-width: 980px; margin: -48px auto 64px; padding: 0 24px; position: relative; z-index: 2; }
+
+  .section {
+    background: white; border-radius: 18px; padding: 28px;
+    box-shadow: 0 6px 30px rgba(11,85,99,.08);
+    border: 1px solid var(--rule);
+    margin-bottom: 22px;
+  }
+  .section h2 {
+    margin: 0 0 6px; font-size: 13px; text-transform: uppercase;
+    letter-spacing: .15em; color: var(--brand-accent); font-weight: 700;
+  }
+  .section .lead { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+
+  /* Cards de link */
+  .grid { display: grid; gap: 12px; }
+  .grid.cols-2 { grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .grid.cols-2 { grid-template-columns: 1fr 1fr; } }
+
+  .link-card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 20px; border-radius: 14px;
+    border: 1.5px solid var(--rule); background: white;
+    text-decoration: none; color: inherit;
+    transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+  }
+  .link-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--brand-accent);
+    box-shadow: 0 10px 24px rgba(30,136,168,.18);
+  }
+  .link-card.primary {
+    background: var(--brand); color: white; border-color: var(--brand);
+  }
+  .link-card.primary:hover { background: var(--brand-accent); border-color: var(--brand-accent); }
+  .link-card .icon {
+    width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px;
+    background: var(--brand-soft); color: var(--brand);
+    display: grid; place-items: center; font-size: 22px;
+  }
+  .link-card.primary .icon { background: rgba(255,255,255,.15); color: white; }
+  .link-card .body { flex: 1; min-width: 0; }
+  .link-card .title { font-weight: 700; font-size: 15px; line-height: 1.3; }
+  .link-card .desc {
+    font-size: 12.5px; color: var(--muted); margin-top: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .link-card.primary .desc { color: rgba(255,255,255,.85); }
+  .link-card .arrow { font-size: 18px; opacity: .55; }
+
+  /* Credenciais */
+  table.creds {
+    width: 100%; border-collapse: collapse; font-size: 14px;
+  }
+  table.creds th, table.creds td {
+    text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--rule);
+  }
+  table.creds th {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--muted); font-weight: 600;
+  }
+  table.creds tr:last-child td { border-bottom: none; }
+  table.creds td.mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+  .copy-pill {
+    cursor: pointer; background: var(--brand-soft); color: var(--brand);
+    padding: 2px 8px; border-radius: 6px; font-size: 11px;
+    border: 1px solid transparent; transition: all .12s;
+  }
+  .copy-pill:hover { border-color: var(--brand-accent); }
+  .copy-pill.copied { background: #d4f1de; color: #2e7d5b; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+  }
+  .b-gestor { background: #1B2B33; color: white; }
+  .b-recep { background: #E6F1F4; color: #0B5563; }
+  .b-tri { background: #FFF4D6; color: #8a6a00; }
+  .b-med { background: #E1ECF7; color: #1a4f8b; }
+  .b-med2 { background: #FFE6E0; color: #8a3a23; }
+
+  /* Pitch script */
+  .pitch ol { padding-left: 0; list-style: none; counter-reset: step; margin: 0; }
+  .pitch li {
+    counter-increment: step; padding: 14px 16px 14px 56px;
+    position: relative; border-left: 3px solid var(--brand-accent);
+    background: #fafcfc; border-radius: 0 12px 12px 0;
+    margin-bottom: 10px;
+  }
+  .pitch li::before {
+    content: counter(step); position: absolute; left: 14px; top: 14px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--brand); color: white;
+    display: grid; place-items: center; font-weight: 700; font-size: 14px;
+  }
+  .pitch li b { color: var(--brand); }
+
+  /* Cores manchester demo */
+  .manchester-strip {
+    display: flex; gap: 6px; margin: 8px 0 4px;
+  }
+  .manchester-strip span {
+    flex: 1; height: 8px; border-radius: 4px;
+  }
+  .mr { background: var(--m-red); } .mo { background: var(--m-orange); }
+  .my { background: var(--m-yellow); } .mg { background: var(--m-green); }
+  .mb { background: var(--m-blue); }
+
+  footer {
+    text-align: center; padding: 32px 24px;
+    color: var(--muted); font-size: 12px;
+  }
+  footer a { color: var(--brand-accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* QR codes */
+  .qr-grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  .qr-card {
+    background: var(--brand-soft); border-radius: 12px;
+    padding: 14px; text-align: center;
+  }
+  .qr-card img {
+    width: 100%; max-width: 140px; height: auto;
+    background: white; border-radius: 8px; padding: 6px;
+    display: block; margin: 0 auto 8px;
+  }
+  .qr-card .label {
+    font-size: 11px; font-weight: 600; color: var(--brand);
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="eyebrow">Pitch · Pronto-Socorro · HGVP</div>
+    <h1>Triagem &amp; Fila Inteligente</h1>
+    <p class="subtitle">
+      Plataforma integrada com triagem Manchester, fila priorizada, chamador
+      e analytics preditivo de fluxo e desfecho clínico, totalmente operacional
+      em PoC para o Hospital Geral Vila Penteado.
+    </p>
+    <div class="manchester-strip">
+      <span class="mr" title="Vermelho — 0 min"></span>
+      <span class="mo" title="Laranja — 10 min"></span>
+      <span class="my" title="Amarelo — 60 min"></span>
+      <span class="mg" title="Verde — 120 min"></span>
+      <span class="mb" title="Azul — 240 min"></span>
+    </div>
+    <div class="meta">
+      <span>📍 Hospital Geral Vila Penteado</span>
+      <span>🔒 LGPD · Supabase São Paulo</span>
+      <span>📡 HL7 FHIR / RNDS-ready</span>
+      <span>💸 0 R$ em licenças</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===== ACESSO RÁPIDO ===== -->
+  <section class="section">
+    <h2>Acesso à demonstração</h2>
+    <p class="lead">Para abrir agora durante o pitch ou compartilhar depois.</p>
+
+    <div class="grid cols-2">
+      <a class="link-card primary" href="https://triagem-fila-hgvp.vercel.app" target="_blank" rel="noopener">
+        <div class="icon">🏥</div>
+        <div class="body">
+          <div class="title">Abrir a plataforma</div>
+          <div class="desc">triagem-fila-hgvp.vercel.app</div>
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+      <a class="link-card" href="https://triagem-fila-hgvp.vercel.app/chamador" target="_blank" rel="noopener">
+        <div class="icon">📺</div>
+        <div class="body">
+          <div class="title">Painel chamador (TV)</div>
+          <div class="desc">Acesso público, sem login</div>
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+      <a class="link-card" href="https://triagem-fila-hgvp.vercel.app/login" target="_blank" rel="noopener">
+        <div class="icon">🔑</div>
+        <div class="body">
+          <div class="title">Login da equipe</div>
+          <div class="desc">Credenciais abaixo ↓</div>
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+      <a class="link-card" href="./Proposta_Triagem_Fila_Inteligente_HGVP.pdf" target="_blank" rel="noopener">
+        <div class="icon">📄</div>
+        <div class="body">
+          <div class="title">Proposta técnica (PDF)</div>
+          <div class="desc">9 páginas — escopo, PoC, ROI</div>
+        </div>
+        <div class="arrow">→</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== QR CODES ===== -->
+  <section class="section">
+    <h2>QR codes</h2>
+    <p class="lead">Aponte a câmera do celular durante a apresentação.</p>
+    <div class="qr-grid">
+      <div class="qr-card">
+        <img alt="QR app" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Ftriagem-fila-hgvp.vercel.app">
+        <div class="label">App</div>
+      </div>
+      <div class="qr-card">
+        <img alt="QR chamador" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Ftriagem-fila-hgvp.vercel.app%2Fchamador">
+        <div class="label">Chamador (TV)</div>
+      </div>
+      <div class="qr-card">
+        <img alt="QR login" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Ftriagem-fila-hgvp.vercel.app%2Flogin">
+        <div class="label">Login</div>
+      </div>
+      <div class="qr-card">
+        <img alt="QR esta página" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fpedrogabrielwlassak.github.io%2Ftriagem-fila-hgvp-pitch%2F">
+        <div class="label">Esta página</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CREDENCIAIS ===== -->
+  <section class="section">
+    <h2>Credenciais de demonstração</h2>
+    <p class="lead">Senha padrão da equipe: <code>teste123</code> · Pedro: <code>hgvp2026</code></p>
+    <table class="creds">
+      <thead>
+        <tr>
+          <th>Email</th><th>Nome</th><th>Papel</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">jose@hgvp.local</td>
+          <td>José Pereira</td>
+          <td><span class="badge b-recep">Recepção</span></td>
+          <td><button class="copy-pill" data-copy="jose@hgvp.local">copiar</button></td>
+        </tr>
+        <tr>
+          <td class="mono">maria@hgvp.local</td>
+          <td>Maria Silva</td>
+          <td><span class="badge b-tri">Enf. Triagem</span></td>
+          <td><button class="copy-pill" data-copy="maria@hgvp.local">copiar</button></td>
+        </tr>
+        <tr>
+          <td class="mono">mario@hgvp.local</td>
+          <td>Mário Andrade</td>
+          <td><span class="badge b-med">Médico</span></td>
+          <td><button class="copy-pill" data-copy="mario@hgvp.local">copiar</button></td>
+        </tr>
+        <tr>
+          <td class="mono">carla@hgvp.local</td>
+          <td>Carla Mendes</td>
+          <td><span class="badge b-med2">Enf. Medicação</span></td>
+          <td><button class="copy-pill" data-copy="carla@hgvp.local">copiar</button></td>
+        </tr>
+        <tr>
+          <td class="mono">bruna@hgvp.local</td>
+          <td>Bruna Costa</td>
+          <td><span class="badge b-gestor">Gestora</span></td>
+          <td><button class="copy-pill" data-copy="bruna@hgvp.local">copiar</button></td>
+        </tr>
+        <tr>
+          <td class="mono">pedro@hgvp.local</td>
+          <td>Pedro Wlassak</td>
+          <td><span class="badge b-gestor">Gestor</span></td>
+          <td><button class="copy-pill" data-copy="pedro@hgvp.local">copiar</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== ROTEIRO DE PITCH ===== -->
+  <section class="section pitch">
+    <h2>Roteiro do pitch · 8 minutos</h2>
+    <p class="lead">Sequência sugerida pra demonstrar valor sem se perder em detalhes técnicos.</p>
+    <ol>
+      <li>
+        <b>O problema (1 min).</b> PS opera com triagem em papel, fila por ordem de chegada e
+        sem visibilidade em tempo real. Evasão (LWBS) e tempos de espera viram caixa-preta.
+      </li>
+      <li>
+        <b>A proposta em uma frase (30 s).</b> Um sistema único que acompanha o paciente da
+        porta ao desfecho, gera dado estruturado e usa esse dado para
+        <em>predizer lotação</em> e <em>mudar desfecho</em>.
+      </li>
+      <li>
+        <b>Demo — Recepção (1 min).</b> Login como <code>jose@hgvp.local</code>.
+        Cadastra paciente com CNS, gera senha automática, envia para triagem.
+      </li>
+      <li>
+        <b>Demo — Triagem Manchester (2 min).</b> Login como <code>maria@hgvp.local</code>.
+        Mostra fila, abre o paciente, preenche sinais vitais e classifica (laranja).
+        Sistema aplica tempo-alvo automático.
+      </li>
+      <li>
+        <b>Demo — Médico (1,5 min).</b> Login como <code>mario@hgvp.local</code>.
+        Fila priorizada por cor + tempo. Clica em "Chamar" — a TV do chamador
+        (abrir <a href="https://triagem-fila-hgvp.vercel.app/chamador" target="_blank">/chamador</a>
+        em outra aba) anuncia em voz alta.
+        Faz consulta, prescreve, define conduta = reavaliação.
+      </li>
+      <li>
+        <b>Demo — Gestão (1,5 min).</b> Login como <code>bruna@hgvp.local</code>.
+        Mostra 10 KPIs ao vivo, filas, cadastros de equipe e o ponto-chave:
+        conexão direta com <b>Power BI</b> e arquitetura aderente a <b>HL7 FHIR / RNDS</b>.
+      </li>
+      <li>
+        <b>O pedido (30 s).</b> Autorização para PoC de 90 dias no PS, com
+        <em>zero custo em licenças</em>, hardware mínimo, dado on-premise sob LGPD,
+        e relatório executivo ao fim do período.
+      </li>
+    </ol>
+  </section>
+
+  <!-- ===== FRASES-CHAVE ===== -->
+  <section class="section">
+    <h2>Frases para usar no pitch</h2>
+    <ul style="line-height:1.7; padding-left: 20px; margin: 0;">
+      <li>"Hoje o PS decide no escuro. Em 30 dias de dado a gente começa a decidir com evidência."</li>
+      <li>"A plataforma não substitui ninguém — ela <b>devolve tempo</b> à equipe."</li>
+      <li>"Cada transição vira <b>feature</b> pro modelo que vai prever lotação na semana seguinte."</li>
+      <li>"Compatível com <b>RNDS</b> desde o dia 1 — o hospital sai à frente em qualquer iniciativa nacional."</li>
+      <li>"PoC de 90 dias, custo zero em software, decisão de continuidade baseada em métricas."</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  Construído por <b>Pedro Wlassak</b> · Proposta para o PS do Hospital Geral Vila Penteado
+  <br>
+  Stack: Next.js · Supabase (Postgres+Realtime+Auth) · TypeScript · Tailwind ·
+  <a href="https://github.com/PedroGabrielWlassak/triagem-fila-hgvp-pitch" target="_blank">repo</a>
+</footer>
+
+<script>
+  document.querySelectorAll(".copy-pill").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const text = btn.getAttribute("data-copy");
+      try {
+        await navigator.clipboard.writeText(text);
+        const orig = btn.textContent;
+        btn.textContent = "copiado!";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.remove("copied");
+        }, 1400);
+      } catch {}
+    });
+  });
+</script>
+</body>
+</html>
