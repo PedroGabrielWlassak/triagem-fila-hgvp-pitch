@@ -223,7 +223,6 @@
       <span>📍 Hospital Geral Vila Penteado</span>
       <span>🔒 LGPD · Supabase São Paulo</span>
       <span>📡 HL7 FHIR / RNDS-ready</span>
-      <span>💸 0 R$ em licenças</span>
     </div>
   </div>
 </header>
@@ -259,6 +258,15 @@
         <div class="body">
           <div class="title">Login da equipe</div>
           <div class="desc">Credenciais abaixo ↓</div>
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+      <a class="link-card" href="./Apresentacao_Triagem_Fila_HGVP.pdf" target="_blank" rel="noopener">
+        <div class="icon">🎤</div>
+        <div class="body">
+          <div class="title">Apresentação do pitch (PDF)</div>
+          <div class="desc">17 slides 16:9 para projeção</div>
         </div>
         <div class="arrow">→</div>
       </a>
@@ -347,61 +355,6 @@
         </tr>
       </tbody>
     </table>
-  </section>
-
-  <!-- ===== ROTEIRO DE PITCH ===== -->
-  <section class="section pitch">
-    <h2>Roteiro do pitch · 8 minutos</h2>
-    <p class="lead">Sequência sugerida pra demonstrar valor sem se perder em detalhes técnicos.</p>
-    <ol>
-      <li>
-        <b>O problema (1 min).</b> PS opera com triagem em papel, fila por ordem de chegada e
-        sem visibilidade em tempo real. Evasão (LWBS) e tempos de espera viram caixa-preta.
-      </li>
-      <li>
-        <b>A proposta em uma frase (30 s).</b> Um sistema único que acompanha o paciente da
-        porta ao desfecho, gera dado estruturado e usa esse dado para
-        <em>predizer lotação</em> e <em>mudar desfecho</em>.
-      </li>
-      <li>
-        <b>Demo — Recepção (1 min).</b> Login como <code>jose@hgvp.local</code>.
-        Cadastra paciente com CNS, gera senha automática, envia para triagem.
-      </li>
-      <li>
-        <b>Demo — Triagem Manchester (2 min).</b> Login como <code>maria@hgvp.local</code>.
-        Mostra fila, abre o paciente, preenche sinais vitais e classifica (laranja).
-        Sistema aplica tempo-alvo automático.
-      </li>
-      <li>
-        <b>Demo — Médico (1,5 min).</b> Login como <code>mario@hgvp.local</code>.
-        Fila priorizada por cor + tempo. Clica em "Chamar" — a TV do chamador
-        (abrir <a href="https://triagem-fila-hgvp.vercel.app/chamador" target="_blank">/chamador</a>
-        em outra aba) anuncia em voz alta.
-        Faz consulta, prescreve, define conduta = reavaliação.
-      </li>
-      <li>
-        <b>Demo — Gestão (1,5 min).</b> Login como <code>bruna@hgvp.local</code>.
-        Mostra 10 KPIs ao vivo, filas, cadastros de equipe e o ponto-chave:
-        conexão direta com <b>Power BI</b> e arquitetura aderente a <b>HL7 FHIR / RNDS</b>.
-      </li>
-      <li>
-        <b>O pedido (30 s).</b> Autorização para PoC de 90 dias no PS, com
-        <em>zero custo em licenças</em>, hardware mínimo, dado on-premise sob LGPD,
-        e relatório executivo ao fim do período.
-      </li>
-    </ol>
-  </section>
-
-  <!-- ===== FRASES-CHAVE ===== -->
-  <section class="section">
-    <h2>Frases para usar no pitch</h2>
-    <ul style="line-height:1.7; padding-left: 20px; margin: 0;">
-      <li>"Hoje o PS decide no escuro. Em 30 dias de dado a gente começa a decidir com evidência."</li>
-      <li>"A plataforma não substitui ninguém — ela <b>devolve tempo</b> à equipe."</li>
-      <li>"Cada transição vira <b>feature</b> pro modelo que vai prever lotação na semana seguinte."</li>
-      <li>"Compatível com <b>RNDS</b> desde o dia 1 — o hospital sai à frente em qualquer iniciativa nacional."</li>
-      <li>"PoC de 90 dias, custo zero em software, decisão de continuidade baseada em métricas."</li>
-    </ul>
   </section>
 
 </main>
